@@ -3,9 +3,11 @@ import random
 import string
 import hashlib
 from base64 import b64encode
-from datetime import datetime, timezone  # Requires Python 3.2
+from datetime import datetime
 import boto3
 from botocore.exceptions import WaiterError
+
+from . import UTC
 
 
 log = logging.getLogger(__name__ if __name__ != '__main__' else 'comms')
@@ -32,7 +34,7 @@ class S3Comm(object):
         :param kwargs: additional arguments to pass to boto3.session.Session.client (like "region_name")
         """
         self.bucket = bucket
-        self.created = datetime.now(timezone.utc)
+        self.created = datetime.now(UTC)
         path_list = []
         if prefix:
             path_list.append(prefix)

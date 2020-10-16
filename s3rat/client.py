@@ -1,7 +1,8 @@
+from __future__ import print_function
 import logging
-from datetime import datetime, timezone  # Requires Python 3.2
+from datetime import datetime
 
-from . import get_result_name, S3Comm
+from . import UTC, get_result_name, S3Comm
 
 
 log = logging.getLogger(__name__ if __name__ != '__main__' else 'client')
@@ -24,7 +25,7 @@ def cli_main(args):
     print("Found Session ID:", sid)
     comm.wait_for("0_server_ready.txt")
     print("Server is ready")
-    timestamp = datetime.now(timezone.utc).strftime("%H%M%SZ")
+    timestamp = datetime.now(UTC).strftime("%H%M%SZ")
     if 'command' in args and args.command:
         comm.upload("{}.cmd".format(timestamp), " ".join(args.command))
         print("Sent Command:", " ".join(args.command))

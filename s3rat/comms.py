@@ -11,6 +11,10 @@ from botocore.exceptions import WaiterError
 log = logging.getLogger(__name__ if __name__ != '__main__' else 'comms')
 
 
+def get_result_name(name):
+    return '.'.join([name.rsplit('.', 1)[0], 'result'])
+
+
 class S3Comm(object):
     """ The S3 communication session """
 

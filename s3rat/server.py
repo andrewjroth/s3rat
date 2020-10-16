@@ -1,6 +1,5 @@
 from __future__ import print_function
 import logging
-import json
 import sys
 import io
 import subprocess
@@ -26,14 +25,10 @@ def get_instance_identity():
     try:
         r = http.request('GET', 'http://169.254.169.254/latest/dynamic/instance-identity/document')
         # TODO: Verify using document signature
-        return json.loads(r.data.decode('utf-8'))
+        return r.data.decode('utf-8')
     except urllib3.exceptions.HTTPError as e:
         log.error("HTTPError getting instance identity: %s", str(e))
-        return {
-            "error": str(e),
-            "instanceId": "i-test123",
-            "privateIp": "127.0.0.1"
-        }
+        return '{{ "error": "{}" }}'.format(str(e))
 
 
 def execute_cmd(cmd_text):
@@ -92,8 +87,7 @@ def cli_main(args):
     comm = S3Comm(args.bucket)
     sid = comm.start_session(args.session)
     print("Session ID:", sid)
-    sleep(10)
-    comm.upload("0_server_ready.txt", "server is ready")
+    comm.upload("0_server_identity.json", get_instance_identity())
     print("Server is ready")
     while True:
         for new_name in comm.check():

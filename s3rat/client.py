@@ -27,8 +27,9 @@ def cli_main(args):
     comm = S3Comm(args.bucket)
     sid = comm.start_session(args.session)
     print("Found Session ID:", sid)
-    comm.wait_for("0_server_ready.txt")
-    print("Server is ready")
+    server_id = comm.download("0_server_identity.json")
+    print("Server Info:")
+    print(server_id)
     if 'command' in args and args.command:
         timestamp = datetime.now(UTC).strftime("%H%M%SZ")
         comm.upload("{}.cmd".format(timestamp), " ".join(args.command))
@@ -50,7 +51,9 @@ def cli_main(args):
             try:
                 cmd = input('{} > '.format(timestamp))
                 if cmd == "exit":
-                    break
+                    break  # break loop on exit
+                if cmd.strip() == "":
+                    continue  # re-prompt if no input
                 comm.upload("{}.cmd".format(timestamp), cmd)
                 result_name = get_result_name("{}.cmd".format(timestamp))
                 comm.wait_for(result_name)

@@ -42,6 +42,8 @@ class S3Comm(object):
         self.day_prefix = "/".join(path_list)
         self.prefix = None  # Session Prefix
         self.client = boto3.client('s3', **kwargs)
+        log.info("S3Comm Configured at s3://%s/%s/ (kwargs=%s)",
+                 self.bucket, self.day_prefix, kwargs)
 
     def start_session(self, session_id=None):
         """ Start a new session or configure for an existing session
@@ -63,7 +65,7 @@ class S3Comm(object):
             session_id = ''.join([random.choice(string.ascii_letters+string.digits) for _ in range(8)])
             session_name = "{}_{}".format(self.created.strftime("%H%M%SZ"), session_id)
         self.prefix = "/".join([self.day_prefix, session_name])
-        log.info("Setup S3Comm with bucket='%s', prefix='%s' (kwargs: %s)",
+        log.info("S3Comm Session Started at s3://%s/%s/",
                  self.bucket, self.prefix)
         return session_id
 
